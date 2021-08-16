@@ -10,11 +10,12 @@ composer update
 ```
 composer create-project laravel/laravel laravel-tgbot
 ```
-- Установить библиотеку telegram-bot-sdk:
+## Установить библиотеку telegram-bot-sdk:
 ```
 composer require irazasyed/telegram-bot-sdk
 ```
-- Опубликовать конфигурацию telegram-bot-sdk. Из корневой папки laravel-tgbot выполнять:
+## Опубликовать конфигурацию telegram-bot-sdk. 
+Из корневой папки laravel-tgbot выполнять:
 ```
 php artisan vendor:publish --provider="Telegram\Bot\Laravel\TelegramServiceProvider"
 ```
