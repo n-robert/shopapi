@@ -5,7 +5,8 @@ composer update
 ```
 и сразу поддойти к последнему шагу.
 
-- Установить Laravel, если его еще нет. Я исплользовал composer:
+## Установить Laravel, если его еще нет. 
+Я исплользовал composer:
 ```
 composer create-project laravel/laravel laravel-tgbot
 ```
@@ -17,7 +18,7 @@ composer require irazasyed/telegram-bot-sdk
 ```
 php artisan vendor:publish --provider="Telegram\Bot\Laravel\TelegramServiceProvider"
 ```
-- Прописать константы в .env:
+## Прописать константы в .env:
 ```
 TELEGRAM_BOT_TOKEN=ТОКЕН_ВАШЕГО_БОТА
 TELEGRAM_WEBHOOK_URL=ТОКЕН_ВАШЕГО_БОТА/webhook
@@ -25,7 +26,8 @@ TELEGRAM_ASYNC_REQUESTS=true
 WEBMASTER_TOKEN=ТОКЕН_ПОЛЬЗОВАТЕЛЯ_НА_leads.su
 WEBMASTER_API_URL=http://api.leads.su/webmaster
 ```
-- Создать контроллер бота. Из корневой папки laravel-tgbot:
+## Создать контроллер бота. 
+Из корневой папки laravel-tgbot:
 ```
 php artisan make:controller TelegramController
 ```
@@ -311,13 +313,15 @@ class TelegramController extends Controller
 ```
 </details>
 
-- Пропишем роуты. В routes/web.php (или где вам удобнее) добавить:
+## Пропишем роуты. 
+В routes/web.php (или где вам удобнее) добавить:
 ```
 Route::get('/set-webhook', 'App\Http\Controllers\TelegramController@setWebHook');
 Route::post('/' . env('TELEGRAM_WEBHOOK_URL'), 'App\Http\Controllers\TelegramController@handleUpdate');
 ```
 
-- Последний шаг. Установим вебхук (ваш домен должен быть сертифицирован): в браузере перейти по ссылке:
+## Последний шаг. 
+Установим вебхук (ваш домен должен быть сертифицирован): в браузере перейти по ссылке:
 ```
 https://api.telegram.org/botТОКЕН_ВАШЕГО_БОТА/setWebhook?url=https://ВАШ_ДОМЕН/webhook
 ```
