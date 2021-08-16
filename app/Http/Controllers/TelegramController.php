@@ -102,13 +102,13 @@ class TelegramController extends Controller
      */
     public function handleUpdate()
     {
-        $request = $this->telegram->getWebhookUpdate();
+        $update = $this->telegram->getWebhookUpdate();
 
-        if (isset($request['callback_query'])) {
-            $message = $request['callback_query']['message'];
-            $method = $request['callback_query']['data'];
+        if (isset($update['callback_query'])) {
+            $message = $update['callback_query']['message'];
+            $method = $update['callback_query']['data'];
         } else {
-            $message = $request['message'];
+            $message = $update['message'];
             $method =
                 Str::startsWith($message['text'], '/') ?
                     $message['text'] :
