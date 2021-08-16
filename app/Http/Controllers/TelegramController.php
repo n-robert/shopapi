@@ -12,14 +12,6 @@ class TelegramController extends Controller
     /**
      * @var array
      */
-    static    $sequence     =
-        [
-            '/typeLogin'    => 'Please, enter your login!',
-            '/typePassword' => 'Please, enter your password!',
-        ];
-    /**
-     * @var array
-     */
     static    $infoFields   =
         [
             'id'           => 'ID',
@@ -143,12 +135,16 @@ class TelegramController extends Controller
             [
                 [
                     [
-                        'text'          => 'Get user info',
-                        'callback_data' => '/getUserInfo',
+                        'text'          => 'Get user',
+                        'callback_data' => '/getUser',
                     ],
                     [
-                        'text'          => 'Get user reports',
+                        'text'          => 'Get reports',
                         'callback_data' => '/getUserReports',
+                    ],
+                    [
+                        'text'          => 'Get countries',
+                        'callback_data' => '/getLast10Countries',
                     ],
                 ]
             ];
@@ -165,17 +161,21 @@ class TelegramController extends Controller
     /**
      * @return void
      */
-    public function getUserInfo()
+    public function getUser()
     {
         $params = ['token' => $this->webmasterToken];
         $response = Http::get($this->webmasterApiUrl . '/account', $params);
         $data = $response->json('data');
         $text = [];
 
-        foreach (static::$infoFields as $key => $name) {
-            if (isset($data[$key])) {
-                $text[] = $name . ': ' . $data[$key];
+        if (!empty($data)) {
+            foreach (static::$infoFields as $key => $name) {
+                if (isset($data[$key])) {
+                    $text[] = $name . ': ' . $data[$key];
+                }
             }
+        } else {
+            $text[] = 'Sorry, there are no data to show yet.';
         }
 
         $this->text = implode(chr(10), $text);
@@ -207,13 +207,44 @@ class TelegramController extends Controller
         $data = $response->json('data');
         $text = [];
 
-        foreach (static::$reportFields as $key => $name) {
-            if (isset($data[$key])) {
-                $text[] = $name . ': ' . $data[$key];
+        if (!empty($data)) {
+            foreach (static::$reportFields as $key => $name) {
+                if (isset($data[$key])) {
+                    $text[] = $name . ': ' . $data[$key];
+                }
             }
+        } else {
+            $text[] = 'Sorry, there are no data to show yet.';
         }
 
-        $this->text = !empty($text) ? implode(chr(10), $text) : 'Sorry, there are no data to show yet.';
+        $this->text = implode(chr(10), $text);
+
+        $this->sendMessage();
+    }
+
+    /**
+     * @return void
+     */
+    public function getLast10Countries()
+    {
+        $params = ['token' => $this->webmasterToken];
+        $response = Http::get($this->webmasterApiUrl . '/geo/getCountries', $params);
+        $data =
+            collect($response->json('data'))
+                ->sortBy('name', SORT_REGULAR, true)
+                ->slice(0, 10)
+                ->all();
+        $text = [];
+
+        if (!empty($data)) {
+            foreach ($data as $country) {
+                $text[] = $country['name'] . ' (' . $country['iso_alpha2'] . ')';
+            }
+        } else {
+            $text[] = 'Sorry, there are no data to show yet.';
+        }
+
+        $this->text = implode(chr(10), $text);
 
         $this->sendMessage();
     }
