@@ -1,63 +1,335 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+Использованы [Laravel](https://laravel.com) и [telegram-bot-sdk](https://github.com/irazasyed/telegram-bot-sdk).  
+Вы можете сделать копию кода, выполнить
+```
+composer update
+```
+и сразу поддойти к последнему шагу.
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+- Установить Laravel, если его еще нет. Я исплользовал composer:
+```
+composer create-project laravel/laravel laravel-tgbot
+```
+- Установить библиотеку telegram-bot-sdk:
+```
+composer require irazasyed/telegram-bot-sdk
+```
+- Опубликовать конфигурацию telegram-bot-sdk. Из корневой папки laravel-tgbot выполнять:
+```
+php artisan vendor:publish --provider="Telegram\Bot\Laravel\TelegramServiceProvider"
+```
+- Прописать константы в .env:
+```
+TELEGRAM_BOT_TOKEN=ТОКЕН_ВАШЕГО_БОТА
+TELEGRAM_WEBHOOK_URL=ТОКЕН_ВАШЕГО_БОТА/webhook
+TELEGRAM_ASYNC_REQUESTS=true
+WEBMASTER_TOKEN=ТОКЕН_ПОЛЬЗОВАТЕЛЯ_НА_leads.su
+WEBMASTER_API_URL=http://api.leads.su/webmaster
+```
+- Создать контроллер бота. Из корневой папки laravel-tgbot:
+```
+php artisan make:controller TelegramController
+```
+Будет создан файл app/Http/Controllers/TelegramController, в нем добавим такой код:
+<details>
+<summary>Открыть</summary>
 
-## About Laravel
+```
+<?php
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+namespace App\Http\Controllers;
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\URL;
+use Telegram\Bot\Api;
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+class TelegramController extends Controller
+{
+    /**
+     * @var array
+     */
+    static    $infoFields   =
+        [
+            'id'           => 'ID',
+            'name'         => 'Name',
+            'display_name' => 'Display name',
+            'phone'        => 'Phone number',
+            'email'        => 'E-mail',
+        ];
+    /**
+     * @var array
+     */
+    static    $reportFields =
+        [
+            'period_hour'          => 'Period',
+            'impressions'          => 'Impressions',
+            'unique_impressions'   => 'Unique impressions',
+            'clicks'               => 'Clicks',
+            'unique_clicks'        => 'Unique clicks',
+            'conversions_approved' => 'Approved conversions',
+            'payout'               => 'Payout',
+            'offer_id'             => 'Offer ID',
+            'goal_id'              => 'Goal ID',
+            'source'               => 'Source',
+        ];
+    /**
+     * @var Api
+     */
+    protected $telegram;
+    /**
+     * @var int
+     */
+    protected $chatId;
+    /**
+     * @var string
+     */
+    protected $userName;
+    /**
+     * @var string
+     */
+    protected $text;
+    /**
+     * @var array
+     */
+    protected $replyMarkup;
+    /**
+     * @var string
+     */
+    protected $webmasterToken;
+    /**
+     * @var string
+     */
+    protected $webmasterApiUrl;
 
-## Learning Laravel
+    /**
+     * TelegramController constructor.
+     * @throws \Telegram\Bot\Exceptions\TelegramSDKException
+     */
+    public function __construct()
+    {
+        $this->telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+        $this->webmasterToken = env('WEBMASTER_TOKEN');
+        $this->webmasterApiUrl = env('WEBMASTER_API_URL');
+    }
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+    /**
+     * @return \Illuminate\Http\RedirectResponse|void
+     * @throws \Telegram\Bot\Exceptions\TelegramSDKException
+     */
+    public function setWebHook()
+    {
+        $response = $this->telegram->setWebhook(['url' => Url::secure(env('TELEGRAM_WEBHOOK_URL'))]);
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+        return $response == true ? redirect()->back() : dd($response);
+    }
 
-## Laravel Sponsors
+    /**
+     * @return void
+     */
+    public function handleUpdate()
+    {
+        $request = $this->telegram->getWebhookUpdate();
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+        if (isset($request['callback_query'])) {
+            $message = $request['callback_query']['message'];
+            $method = $request['callback_query']['data'];
+        } else {
+            $message = $request['message'];
+            $method = $message['text'];
+        }
 
-### Premium Partners
+        $this->chatId = $message['chat']['id'];
+        $this->userName = $message['from']['username'];
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[CMS Max](https://www.cmsmax.com/)**
+        switch ($method) {
+            case '/start':
+            case '/menu':
+                $this->showMenu();
+                break;
+            default:
+                $method = str_replace('/', '', $method);
 
-## Contributing
+                if (method_exists($this, $method)) {
+                    call_user_func([$this, $method]);
+                }
+        }
+    }
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    /**
+     * @param null $info
+     * @return void
+     */
+    public function showMenu($info = null)
+    {
+        $this->text = 'Choose an action!';
 
-## Code of Conduct
+        if ($info) {
+            $this->text .= chr(10) . $info;
+        }
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+        $keyboard =
+            [
+                [
+                    [
+                        'text'          => 'Get user',
+                        'callback_data' => '/getUser',
+                    ],
+                    [
+                        'text'          => 'Get reports',
+                        'callback_data' => '/getUserReports',
+                    ],
+                    [
+                        'text'          => 'Get countries',
+                        'callback_data' => '/getLast10Countries',
+                    ],
+                ]
+            ];
+        $this->replyMarkup =
+            [
+                'inline_keyboard'   => $keyboard,
+                'one_time_keyboard' => true,
+                'resize_keyboard'   => true,
+            ];
 
-## Security Vulnerabilities
+        $this->sendMessage();
+    }
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    /**
+     * @return void
+     */
+    public function getUser()
+    {
+        $params = ['token' => $this->webmasterToken];
+        $response = Http::get($this->webmasterApiUrl . '/account', $params);
+        $data = $response->json('data');
+        $text = [];
 
-## License
+        if (!empty($data)) {
+            foreach (static::$infoFields as $key => $name) {
+                if (isset($data[$key])) {
+                    $text[] = $name . ': ' . $data[$key];
+                }
+            }
+        } else {
+            $text[] = 'Sorry, there are no data to show yet.';
+        }
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+        $this->text = implode(chr(10), $text);
+
+        $this->sendMessage();
+    }
+
+    /**
+     * @param null $startDate
+     * @param null $endDate
+     * @param int $offset
+     * @param string $grouping
+     * @return void
+     */
+    public function getUserReports($startDate = null, $endDate = null, $offset = 0, $grouping = 'month')
+    {
+        $startDate = $startDate ?: Carbon::now();
+        $endDate = $endDate ?: Carbon::now()->modify('-24 hours');
+        $params =
+            [
+                'token'      => $this->webmasterToken,
+                'start_date' => $startDate,
+                'end_date'   => $endDate,
+                'offset'     => $offset,
+                'grouping'   => $grouping,
+            ];
+
+        $response = Http::get($this->webmasterApiUrl . '/reports', $params);
+        $data = $response->json('data');
+        $text = [];
+
+        if (!empty($data)) {
+            foreach (static::$reportFields as $key => $name) {
+                if (isset($data[$key])) {
+                    $text[] = $name . ': ' . $data[$key];
+                }
+            }
+        } else {
+            $text[] = 'Sorry, there are no data to show yet.';
+        }
+
+        $this->text = implode(chr(10), $text);
+
+        $this->sendMessage();
+    }
+
+    /**
+     * @return void
+     */
+    public function getLast10Countries()
+    {
+        $params = ['token' => $this->webmasterToken];
+        $response = Http::get($this->webmasterApiUrl . '/geo/getCountries', $params);
+        $data =
+            collect($response->json('data'))
+                ->sortBy('name', SORT_REGULAR, true)
+                ->slice(0, 10)
+                ->all();
+        $text = [];
+
+        if (!empty($data)) {
+            foreach ($data as $country) {
+                $text[] = $country['name'] . ' (' . $country['iso_alpha2'] . ')';
+            }
+        } else {
+            $text[] = 'Sorry, there are no data to show yet.';
+        }
+
+        $this->text = implode(chr(10), $text);
+
+        $this->sendMessage();
+    }
+
+    /**
+     * @param null $text
+     * @param bool $parse_html
+     * @return void
+     * @throws \Telegram\Bot\Exceptions\TelegramSDKException
+     */
+    protected function sendMessage($text = null, $parse_html = false)
+    {
+        $data = [];
+        $data['chat_id'] = $this->chatId;
+        $data['text'] = $text ?: $this->text;
+
+        if (is_array($this->replyMarkup)) {
+            $data['reply_markup'] = json_encode($this->replyMarkup);
+        }
+
+        if ($parse_html) {
+            $data['parse_mode'] = 'HTML';
+        }
+
+        $this->telegram->sendMessage($data);
+    }
+}
+```
+</details>
+
+- Пропишем роуты. В routes/web.php (или где вам удобнее) добавить:
+```
+Route::get('/set-webhook', 'App\Http\Controllers\TelegramController@setWebHook');
+Route::post('/' . env('TELEGRAM_WEBHOOK_URL'), 'App\Http\Controllers\TelegramController@handleUpdate');
+```
+
+- Последний шаг. Установим вебхук (ваш домен должен быть сертифицирован): в браузере перейти по ссылке:
+```
+https://api.telegram.org/botТОКЕН_ВАШЕГО_БОТА/setWebhook?url=https://ВАШ_ДОМЕН/webhook
+```
+или
+```
+https://ВАШ_ДОМЕН/set-webhook
+```
+Откройте ваш бот, наберите
+```
+/start
+```
+или
+```
+/menu
+```
