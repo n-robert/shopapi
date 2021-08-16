@@ -18,6 +18,19 @@ composer require irazasyed/telegram-bot-sdk
 ```
 php artisan vendor:publish --provider="Telegram\Bot\Laravel\TelegramServiceProvider"
 ```
+Будет создан файл config/telegram.php, в нем отредактируем раздел bots:
+```
+'bot_1' =>
+                [
+                    'username'         => ИМЯ_ВАШЕГО_БОТА,
+                    'token'            => env('TELEGRAM_BOT_TOKEN'),
+                    'certificate_path' => env('TELEGRAM_CERTIFICATE_PATH'),
+                    'webhook_url'      => env('TELEGRAM_WEBHOOK_URL'),
+                    'commands'         => [
+                        //Acme\Project\Commands\MyTelegramBot\BotCommand::class
+                    ],
+                ],
+```
 ## Прописать константы в .env:
 ```
 TELEGRAM_BOT_TOKEN=ТОКЕН_ВАШЕГО_БОТА
@@ -26,6 +39,7 @@ TELEGRAM_ASYNC_REQUESTS=true
 WEBMASTER_TOKEN=ТОКЕН_ПОЛЬЗОВАТЕЛЯ_НА_leads.su
 WEBMASTER_API_URL=http://api.leads.su/webmaster
 ```
+Если используется самоподписанный сертификат SSL, то также нужно указать путь к его папке под ключем TELEGRAM_CERTIFICATE_PATH.
 ## Создать контроллер бота. 
 Из корневой папки laravel-tgbot:
 ```
