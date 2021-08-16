@@ -31,7 +31,7 @@ php artisan make:controller TelegramController
 ```
 Будет создан файл app/Http/Controllers/TelegramController, в нем добавим такой код:
 <details>
-<summary>Открыть</summary>
+<summary>Развернуть код</summary>
 
 ```
 <?php
