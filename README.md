@@ -1,21 +1,20 @@
 Использованы [Laravel](https://laravel.com) и [telegram-bot-sdk](https://github.com/irazasyed/telegram-bot-sdk).  
-Вы можете сделать копию кода, выполнить
+Вы можете взять код, распаковать, из корневой папки выполнить
 ```
 composer update
 ```
-и сразу поддойти к последнему шагу.
+и сразу подойти к последнему шагу.
 
-## Установить Laravel, если его еще нет. 
-Я исплользовал composer:
+## Установить Laravel, если его еще нет.
 ```
 composer create-project laravel/laravel laravel-tgbot
 ```
-## Установить библиотеку telegram-bot-sdk:
+## Установить библиотеку telegram-bot-sdk.
 ```
 composer require irazasyed/telegram-bot-sdk
 ```
 ## Опубликовать конфигурацию telegram-bot-sdk. 
-Из корневой папки laravel-tgbot выполнять:
+Из корневой папки laravel-tgbot выполнить:
 ```
 php artisan vendor:publish --provider="Telegram\Bot\Laravel\TelegramServiceProvider"
 ```
@@ -32,7 +31,7 @@ php artisan vendor:publish --provider="Telegram\Bot\Laravel\TelegramServiceProvi
                     ],
                 ],
 ```
-## Прописать константы в .env:
+## Прописать константы в .env.
 ```
 TELEGRAM_BOT_TOKEN=ТОКЕН_ВАШЕГО_БОТА
 TELEGRAM_WEBHOOK_URL=ТОКЕН_ВАШЕГО_БОТА/webhook
@@ -40,7 +39,7 @@ TELEGRAM_ASYNC_REQUESTS=true
 WEBMASTER_TOKEN=ТОКЕН_ПОЛЬЗОВАТЕЛЯ_НА_leads.su
 WEBMASTER_API_URL=http://api.leads.su/webmaster
 ```
-Если используется самоподписанный сертификат SSL, то также нужно указать путь к его папке под ключем TELEGRAM_CERTIFICATE_PATH.
+Если используется самоподписанный сертификат SSL, то также нужно указать путь к его папке под ключом TELEGRAM_CERTIFICATE_PATH.
 ## Создать контроллер бота. 
 Из корневой папки laravel-tgbot:
 ```
