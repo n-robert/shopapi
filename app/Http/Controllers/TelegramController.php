@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Telegram\Bot\Api;
 
 class TelegramController extends Controller
@@ -12,29 +13,38 @@ class TelegramController extends Controller
     /**
      * @var array
      */
-    static    $infoFields   =
+    static $commands =
         [
-            'id'           => 'ID',
-            'name'         => 'Name',
-            'display_name' => 'Display name',
-            'phone'        => 'Phone number',
-            'email'        => 'E-mail',
+            '/getUser' => 'Get user',
+            '/getUserReports' => 'Get reports',
+            '/getLast10Countries' => 'Get countries',
         ];
     /**
      * @var array
      */
-    static    $reportFields =
+    static $infoFields =
         [
-            'period_hour'          => 'Period',
-            'impressions'          => 'Impressions',
-            'unique_impressions'   => 'Unique impressions',
-            'clicks'               => 'Clicks',
-            'unique_clicks'        => 'Unique clicks',
+            'id' => 'ID',
+            'name' => 'Name',
+            'display_name' => 'Display name',
+            'phone' => 'Phone number',
+            'email' => 'E-mail',
+        ];
+    /**
+     * @var array
+     */
+    static $reportFields =
+        [
+            'period_hour' => 'Period',
+            'impressions' => 'Impressions',
+            'unique_impressions' => 'Unique impressions',
+            'clicks' => 'Clicks',
+            'unique_clicks' => 'Unique clicks',
             'conversions_approved' => 'Approved conversions',
-            'payout'               => 'Payout',
-            'offer_id'             => 'Offer ID',
-            'goal_id'              => 'Goal ID',
-            'source'               => 'Source',
+            'payout' => 'Payout',
+            'offer_id' => 'Offer ID',
+            'goal_id' => 'Goal ID',
+            'source' => 'Source',
         ];
     /**
      * @var Api
@@ -99,7 +109,10 @@ class TelegramController extends Controller
             $method = $request['callback_query']['data'];
         } else {
             $message = $request['message'];
-            $method = $message['text'];
+            $method =
+                Str::startsWith($message['text'], '/') ?
+                    $message['text'] :
+                    array_search($message['text'], static::$commands);
         }
 
         $this->chatId = $message['chat']['id'];
@@ -135,24 +148,23 @@ class TelegramController extends Controller
             [
                 [
                     [
-                        'text'          => 'Get user',
+                        'text' => 'Get user',
                         'callback_data' => '/getUser',
                     ],
                     [
-                        'text'          => 'Get reports',
+                        'text' => 'Get reports',
                         'callback_data' => '/getUserReports',
                     ],
                     [
-                        'text'          => 'Get countries',
+                        'text' => 'Get countries',
                         'callback_data' => '/getLast10Countries',
                     ],
                 ]
             ];
         $this->replyMarkup =
             [
-                'inline_keyboard'   => $keyboard,
-                'one_time_keyboard' => true,
-                'resize_keyboard'   => true,
+                'inline_keyboard' => $keyboard, // 'keyboard' => $keyboard
+                'resize_keyboard' => true,
             ];
 
         $this->sendMessage();
@@ -196,11 +208,11 @@ class TelegramController extends Controller
         $endDate = $endDate ?: Carbon::now()->modify('-24 hours');
         $params =
             [
-                'token'      => $this->webmasterToken,
+                'token' => $this->webmasterToken,
                 'start_date' => $startDate,
-                'end_date'   => $endDate,
-                'offset'     => $offset,
-                'grouping'   => $grouping,
+                'end_date' => $endDate,
+                'offset' => $offset,
+                'grouping' => $grouping,
             ];
 
         $response = Http::get($this->webmasterApiUrl . '/reports', $params);
