@@ -14,8 +14,7 @@ composer create-project laravel/laravel laravel-tgbot
 ```
 composer require irazasyed/telegram-bot-sdk
 ```
-## Опубликовать конфигурацию telegram-bot-sdk. 
-Из корневой папки laravel-tgbot выполнять:
+## Опубликовать конфигурацию telegram-bot-sdk. Из корневой папки laravel-tgbot выполнять:
 ```
 php artisan vendor:publish --provider="Telegram\Bot\Laravel\TelegramServiceProvider"
 ```
@@ -319,6 +318,14 @@ class TelegramController extends Controller
 ```
 Route::get('/set-webhook', 'App\Http\Controllers\TelegramController@setWebHook');
 Route::post('/' . env('TELEGRAM_WEBHOOK_URL'), 'App\Http\Controllers\TelegramController@handleUpdate');
+```
+В app/Http/Middleware/VerifyCsrfToken.php добавить:
+```
+public function __construct(Application $app, Encrypter $encrypter)
+    {
+        parent::__construct($app, $encrypter);
+        $this->except[] = env('TELEGRAM_WEBHOOK_URL');
+    }
 ```
 
 ## Последний шаг. 
