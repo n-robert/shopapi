@@ -1,9 +1,9 @@
 Использованы [Laravel](https://laravel.com) и [telegram-bot-sdk](https://github.com/irazasyed/telegram-bot-sdk).  
-Вы можете взять код, распаковать, из корневой папки выполнить
+Вы можете сделать клон этого репозитория, из корневой папки выполнить
 ```
 composer update
 ```
-и сразу подойти к последнему шагу.
+и сразу перейти к последнему шагу.
 
 ## Установить Laravel, если его еще нет.
 ```
@@ -327,7 +327,7 @@ class TelegramController extends Controller
 ```
 </details>
 
-## Пропишем роуты. 
+## Прописать роуты. 
 В routes/web.php (или где вам удобнее) добавить:
 ```
 Route::get('/set-webhook', 'App\Http\Controllers\TelegramController@setWebHook');
@@ -343,7 +343,7 @@ public function __construct(Application $app, Encrypter $encrypter)
 ```
 
 ## Последний шаг. 
-Установим вебхук (ваш домен должен быть сертифицирован): в браузере перейти по ссылке:
+Установите вебхук (ваш домен должен быть сертифицирован): в браузере перейти по ссылке:
 ```
 https://api.telegram.org/botТОКЕН_ВАШЕГО_БОТА/setWebhook?url=https://ВАШ_ДОМЕН/webhook
 ```
