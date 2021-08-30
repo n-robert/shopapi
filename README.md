@@ -3,7 +3,6 @@
 - Копировать содержимое .env.example в .env
 - Выполнить:
     + composer update
-    + npm install/update
     + php artisan passport:install
     + docker-compose up
 ## URLs
