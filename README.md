@@ -11,17 +11,17 @@ Auth: Bearer Token
 - POST /login: {"email","password"}
 - POST /logout
 - GET /api/user
-- POST /api/products/store: {"title","slug","cost"}
-- PUT /api/products/update/{id}: {"title","slug","cost"}
+- POST /api/products: {"title","slug","cost"}
+- PUT /api/products/{id}: {"title","slug","cost"}
 - DELETE /api/products/{id}
 - GET /api/products
-- POST /api/cart-items/add: {"items":[{"id","quantity"},...]}
-- PUT /api/cart-items/remove: {"items":[{"id","quantity"},...]}
-- DELETE /api/cart-items/delete: {"itemIds": []}
+- POST /api/cart-items: {"items":[{"id","quantity"},...]}
+- PUT /api/cart-items: {"items":[{"id","quantity"},...]}
+- DELETE /api/cart-items: {"itemIds": []}
 - GET /api/carts
-- POST /api/orders/create: {"cartId"}
-- PUT /api/orders/change: {"details", "status"}
-- DELETE /api/orders/delete: {"orderIds": []}
+- POST /api/orders: {"cartId"}
+- PUT /api/orders: {"details", "status"}
+- DELETE /api/orders/{id}
 - GET /api/orders
 
 ## Загрузка товаров из нескольких источников (например база данных и CSV-файл)
