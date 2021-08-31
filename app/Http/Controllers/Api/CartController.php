@@ -98,11 +98,9 @@ class CartController extends BaseController
      */
     public function calculateCartPrice(&$tmpCart)
     {
-        $cartPrice = 0;
-
         foreach ($tmpCart['items'] as $item) {
             $itemPrice = Product::find($item['id'])->cost * $item['quantity'];
-            $cartPrice +=
+            $tmpCart['total'] +=
                 Carbon::now()->timezone('Europe/Moscow')->isWeekend() ?
                     $itemPrice * 0.8 :
                     (
@@ -115,7 +113,5 @@ class CartController extends BaseController
                             )
                     );
         }
-
-        $tmpCart['total'] = $cartPrice;
     }
 }

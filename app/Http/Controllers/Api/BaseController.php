@@ -77,8 +77,8 @@ class BaseController extends Controller
      */
     public function save($model = null, $data = null)
     {
-        $attributes = $data ?? $this->request->only($model->getFillable());
         $model = $model ?? $this->model;
+        $attributes = $data ?? $this->request->only($model->getFillable());
 
         try {
             $model

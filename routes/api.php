@@ -23,9 +23,9 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/user', 'AuthController@user');
         Route::post('/logout', 'AuthController@logout');
-        Route::post('/cart-items/add', 'CartController@addToCart');
-        Route::put('/cart-items/remove', 'CartController@removeFromCart');
-        Route::delete('/cart-items/delete', 'CartController@deleteFromCart');
+        Route::post('/cart-items', 'CartController@addToCart');
+        Route::put('/cart-items', 'CartController@removeFromCart');
+        Route::delete('/cart-items', 'CartController@deleteFromCart');
 
         $models = ['product', 'cart', 'order'];
 
@@ -35,11 +35,11 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
             Route::get('/' . $table, $controller . '@index');
             Route::get('/' . $table . '/{id}', $controller . '@show');
-            Route::post('/' . $table . '/store', $controller . '@store');
+            Route::post('/' . $table, $controller . '@store');
             Route::delete('/' . $table . '/{id}', $controller . '@destroy');
 
             Route::model($model, 'App\\Models\\' . ucfirst($model));
-            Route::put('/' . $table . '/update/{' . $model . '}', $controller . '@update');
+            Route::put('/' . $table . '/{' . $model . '}', $controller . '@update');
         }
     });
 });

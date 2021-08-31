@@ -10,7 +10,7 @@ class Cart extends Base
      * @var array
      */
     protected $fillable = [
-        'items', 'type', 'status', 'user_id',
+        'items', 'type', 'status', 'user_id', 'total',
     ];
 
     /**
