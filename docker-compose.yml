@@ -30,6 +30,7 @@ services:
     networks:
       - internal
   db:
+    container_name: pgsql
     build: ./docker/pgsql
     image: pgsql
     ports:
@@ -45,6 +46,7 @@ services:
       - internal
 
   #db:
+    #container_name: mysql
     #build: ./docker/mysql
     #image: mysql
     #ports:
