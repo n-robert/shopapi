@@ -16,7 +16,7 @@ services:
     networks:
       - internal
   nginx:
-    container_name: nginx
+    container_name: nginx-laraveltest
     build:
       context: docker/nginx
     image: nginx
@@ -24,17 +24,17 @@ services:
       - ./:/var/www
       - ./storage/app/public/:/var/www/public/storage/
     ports:
-      - 8001:80
+      - "8003:80"
     depends_on:
       - php-fpm
     networks:
       - internal
   db:
-    container_name: pgsql
+    container_name: pgsql-laraveltest
     build: ./docker/pgsql
     image: pgsql
     ports:
-      - 5433:5432
+      - "5433:5432"
     volumes:
       - ./docker/pgsql/init:/docker-entrypoint-initdb.d
       - ./docker/pgsql/pgdata:/var/lib/postgresql
@@ -46,11 +46,11 @@ services:
       - internal
 
   #db:
-    #container_name: mysql
+    #container_name: mysql-laraveltest
     #build: ./docker/mysql
     #image: mysql
     #ports:
-      #- 3307:3306
+      #- "3307:3306"
     #volumes:
       #- ./docker/mysql/init:/docker-entrypoint-initdb.d
       #- ./docker/mysql/mydata:/var/lib/mysql
@@ -67,4 +67,4 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 192.168.220.0/28
+        - subnet: 192.168.222.0/28

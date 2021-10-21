@@ -13,7 +13,7 @@ class OrderDetail extends Model
      * Get order that owns the details.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function orderDetails()
+    public function order()
     {
         return $this->belongsTo(Order::class);
     }
