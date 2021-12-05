@@ -10,6 +10,7 @@
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "irazasyed/telegram-bot-sdk": "^3.4",
+        "josmlt/spoonacular-laravel-wrapper": "^2.0",
         "laravel/framework": "^8.54",
         "laravel/passport": "^10.1",
         "laravel/tinker": "^2.5"

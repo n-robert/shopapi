@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Telegram\Bot\Api;
 
-class TelegramController extends Controller
+class LeadSuTestController extends Controller
 {
     /**
      * @var array
@@ -76,7 +76,7 @@ class TelegramController extends Controller
     protected $webmasterApiUrl;
 
     /**
-     * TelegramController constructor.
+     * RobertBotController constructor.
      * @throws \Telegram\Bot\Exceptions\TelegramSDKException
      */
     public function __construct()
@@ -284,3 +284,4 @@ class TelegramController extends Controller
         $this->telegram->sendMessage($data);
     }
 }
+
