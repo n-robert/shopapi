@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\FootBot;
+use App\Services\TheMealDb;
+use Illuminate\Http\Request;
+use App\Models\TelegramSouschef;
+use App\Services\JokeService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Telegram\Bot\Api;
@@ -11,9 +16,9 @@ use Telegram\Bot\Objects\Message;
 use Telegram\Bot\Objects\Update;
 use Telegram\Bot\Objects\User;
 
-class FootbotController extends Controller
+class SouschefController extends Controller
 {
-    use FootBot;
+    use TheMealDb;
 
     /**
      * @var string
@@ -29,6 +34,11 @@ class FootbotController extends Controller
      * @var User
      */
     protected $bot;
+
+    /**
+     * @var string
+     */
+    protected $endpoint;
 
     /**
      * @var int
@@ -51,6 +61,11 @@ class FootbotController extends Controller
     protected $callbackId;
 
     /**
+     * @var string
+     */
+    protected $callbackData;
+
+    /**
      * @var User
      */
     protected $user;
@@ -71,19 +86,33 @@ class FootbotController extends Controller
     protected $isAdmin;
 
     /**
-     * @var string
+     * @var string[]
      */
-    protected $text;
+    static $toHear = [
+        'categories' => 'Categories',
+        'mealbyletter' => 'Meal by first letter',
+        'mealbyname' => 'Meal by name',
+        'mealbyingr' => 'Meal by ingredients',
+    ];
+
+    /**
+     * @var string[]
+     */
+    static $toBeSaid = [
+        'mealbyingr' => 'Ingredients',
+    ];
 
     /**
      * @param string|null $token
+     * @param string $endpoint
      * @throws \Telegram\Bot\Exceptions\TelegramSDKException
      */
-    public function __construct(string $token = null)
+    public function __construct(string $token = null, string $endpoint = 'themealdb')
     {
-        $this->token = $token ?: env('TELEGRAM_FOOTBOT_TOKEN');
+        $this->token = $token ?: env('TELEGRAM_SOUSCHEFBOT_TOKEN');
         $this->telegram = new Api($this->token);
         $this->bot = $this->telegram->getMe();
+        $this->endpoint = env(strtoupper($endpoint) . '_ENDPOINT');
     }
 
     /**
@@ -108,16 +137,18 @@ class FootbotController extends Controller
         $this->setWebHook();
 
         $this->update = $this->telegram->getWebhookUpdate();
+        $method = null;
 
         if (isset($this->update['callback_query'])) {
             $this->callbackId = $this->update['callback_query']['id'];
             $this->message = $this->update['callback_query']['message'];
             $fromUser = $this->update['callback_query']['from'];
-            $method = $this->update['callback_query']['data'];
+            $this->callbackData = $this->update['callback_query']['data'];
+            $method = explode('|', $this->callbackData);
+            $method = trim($method[0]);
         } else {
             $this->message = $this->update['message'];
             $fromUser = $this->message['from'];
-            $toHear = array_merge(static::$adminCommands1, static::$adminCommands2);
 
             do {
                 if (Str::startsWith($this->message['text'], '/')) {
@@ -125,14 +156,7 @@ class FootbotController extends Controller
                     break;
                 }
 
-                foreach (static::$toHearByName as $command => $text) {
-                    if ($this->hearsByName($text)) {
-                        $method = $command;
-                        break(2);
-                    }
-                }
-
-                foreach ($toHear as $command => $text) {
+                foreach (static::$toHear as $command => $text) {
                     if ($this->hears($text)) {
                         $method = $command;
                         break(2);
@@ -146,12 +170,6 @@ class FootbotController extends Controller
                     }
                 }
 
-                $adminCommands = array_merge(static::$adminCommands1, static::$adminCommands2);
-                $userCommands = array_merge(static::$myCommands, static::$guestCommands);
-
-                if ($method = array_search($this->message['text'], array_merge($adminCommands, $userCommands))) {
-                    break;
-                }
             } while (false);
         }
 
@@ -168,60 +186,51 @@ class FootbotController extends Controller
                     'user_id' => $fromUser['id'],
                 ]);
         $this->user = $this->chatMember->user;
-        $this->isAdmin =
-            in_array($this->chatMember->status, ['creator', 'administrator']) ||
-            in_array($this->user->username, static::$admins);
-        $this->keyboard = $this->getKeyboard();
-        $this->adminKeyboard = $this->getKeyboard('admin');
-        $this->userName = '@' . ($this->user->username ?: hash('crc32b', $this->user->id)) . ' ';
-        $this->userName .= $this->user->firstName;
+        $this->isAdmin = in_array($this->chatMember->status, ['creator', 'administrator']);
 
         $method = str_replace(['@' . $this->bot->username, '/'], '', $method);
-        $agrs = [];
-
-        switch ($method) {
-            case 'run':
-                if ($this->isAdmin) {
-                    $method = 'newSchedule';
-                } else {
-                    $method = 'deleteMessage';
-                }
-
-                break;
-            case 'stop':
-                if ($this->isAdmin) {
-                    $method = 'closeOldGame';
-                    $agrs = [true];
-                } else {
-                    $method = 'deleteMessage';
-                }
-
-                break;
-            case 'joke':
-                $method = 'toJoke';
-
-                break;
-            case 'shout':
-                $method = 'toShout';
-
-                break;
-        }
+        $method = static::$methodAlias[$method]['method'] ?: $method;
+        $agrs = static::$methodAlias[$method]['args'] ?? [];
 
         if (method_exists($this, $method)) {
+            $this->telegram->sendChatAction(['chat_id' => $this->chatId, 'action' => 'typing']);
             call_user_func_array([$this, $method], $agrs);
         }
     }
 
+
+
     /**
-     * @param string $pattern
-     * @return false|int
+     * @param int $messageId
      * @throws \Telegram\Bot\Exceptions\TelegramSDKException
      */
-    protected function hearsByName(string $pattern)
+    protected function pinChatMessage(int $messageId)
     {
-        $botName = $this->bot->firstName;
+        $this->telegram->pinChatMessage(
+            [
+                'chat_id' => $this->chatId,
+                'message_id' => $messageId,
+            ]
+        );
+    }
 
-        return $this->hears("^($botName|бот)(\s|,\s)$pattern$");
+    /**
+     * @param bool $deleteOriginal
+     * @throws \Telegram\Bot\Exceptions\TelegramSDKException
+     */
+    protected function deleteMessage(bool $deleteOriginal = true)
+    {
+        $this->telegram->deleteMessage([
+            'chat_id' => $this->chatId,
+            'message_id' => $this->message['message_id'],
+        ]);
+
+        if ($deleteOriginal) {
+            $this->telegram->deleteMessage([
+                'chat_id' => $this->chatId,
+                'message_id' => $this->message['reply_to_message']['message_id'],
+            ]);
+        }
     }
 
     /**
@@ -249,5 +258,14 @@ class FootbotController extends Controller
     }
 
     public function test()
-    {}
+    {
+        $response = json_decode(Http::get('https://api.spoonacular.com/recipes/findByIngredients', [
+                'apiKey' => env('SPOONACULAR_API_KEY'),
+                'ingredients' => 'chicken,mushroom',
+                'offset' => 0,
+                'number' => 3,
+            ]
+        ));
+        echo '<pre>', print_r($response), '</pre>';
+    }
 }
