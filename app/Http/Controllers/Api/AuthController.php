@@ -5,11 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\AuthFormRequest;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends BaseController
 {
-    public function register(AuthFormRequest $request)
+    /**
+     * @param AuthFormRequest $request
+     * @return JsonResponse
+     */
+    public function register(AuthFormRequest $request): JsonResponse
     {
         try {
             User::create(array_merge(
@@ -26,7 +31,10 @@ class AuthController extends BaseController
         return $this->response($message);
     }
 
-    public function login()
+    /**
+     * @return JsonResponse
+     */
+    public function login(): JsonResponse
     {
         $credentials = $this->request->only('email', 'password');
 
@@ -55,14 +63,20 @@ class AuthController extends BaseController
         );
     }
 
-    public function logout()
+    /**
+     * @return JsonResponse
+     */
+    public function logout(): JsonResponse
     {
         $this->request->user()->token()->revoke();
 
         return $this->response('You are successfully logged out');
     }
 
-    public function user()
+    /**
+     * @return JsonResponse
+     */
+    public function user(): JsonResponse
     {
         return $this->response($this->request->user());
     }

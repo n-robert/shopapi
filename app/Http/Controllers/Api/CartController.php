@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
@@ -16,6 +17,8 @@ class CartController extends BaseController
 
     /**
      * Load saved cart.
+     *
+     * @return mixed
      */
     public function loadCart()
     {
@@ -32,8 +35,10 @@ class CartController extends BaseController
 
     /**
      * Add new items/increase items quantity.
+     *
+     * @return JsonResponse
      */
-    public function addToCart()
+    public function addToCart(): JsonResponse
     {
         $tmpCart = $this->loadCart();
 
@@ -51,8 +56,10 @@ class CartController extends BaseController
 
     /**
      * Reduce items quantity.
+     *
+     * @return JsonResponse
      */
-    public function removeFromCart()
+    public function removeFromCart(): JsonResponse
     {
         $tmpCart = $this->loadCart();
 
@@ -67,8 +74,10 @@ class CartController extends BaseController
 
     /**
      * Delete item from cart.
+     *
+     * @return JsonResponse
      */
-    public function deleteFromCart()
+    public function deleteFromCart(): JsonResponse
     {
         $tmpCart = $this->loadCart();
 
@@ -83,8 +92,11 @@ class CartController extends BaseController
 
     /**
      * Save cart to database.
+     *
+     * @param $tmpCart
+     * @return JsonResponse
      */
-    public function saveCart($tmpCart)
+    public function saveCart($tmpCart): JsonResponse
     {
         $model = isset($this->cart->id) ? $this->cart : $this->model;
         $this->calculateCartPrice($tmpCart);
@@ -95,6 +107,9 @@ class CartController extends BaseController
 
     /**
      * Calculate cart price.
+     *
+     * @param $tmpCart
+     * @return void
      */
     public function calculateCartPrice(&$tmpCart)
     {

@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller as Controller;
 use Illuminate\Support\Str;
@@ -25,10 +26,10 @@ class BaseController extends Controller
     /**
      * Dynamically retrieve class field.
      *
-     * @param  string $key
+     * @param string $key
      * @return mixed
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         switch ($key) {
             case 'model':
@@ -48,9 +49,9 @@ class BaseController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $query = $this->model->select('*');
         $items = $query->paginate(request('perPage'));
@@ -62,9 +63,9 @@ class BaseController extends Controller
      * Display the specified resource.
      *
      * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
         return $this->response($this->model->findOrFail($id));
     }
@@ -73,9 +74,10 @@ class BaseController extends Controller
      * Bind request data and save model
      *
      * @param Model|null $model
-     * @return \Illuminate\Http\JsonResponse
+     * @param null $data
+     * @return JsonResponse
      */
-    public function save($model = null, $data = null)
+    public function save(Model $model = null, $data = null): JsonResponse
     {
         $model = $model ?? $this->model;
         $attributes = $data ?? $this->request->only($model->getFillable());
@@ -106,9 +108,9 @@ class BaseController extends Controller
     /**
      * Store new record.
      *
-     * @return mixed
+     * @return JsonResponse
      */
-    public function store()
+    public function store(): JsonResponse
     {
         return $this->save();
     }
@@ -116,10 +118,10 @@ class BaseController extends Controller
     /**
      * Update existing record.
      *
-     * @param  Model $model
-     * @return mixed
+     * @param Model $model
+     * @return JsonResponse
      */
-    public function update($model)
+    public function update(Model $model)
     {
         return $this->save($model);
     }
@@ -128,9 +130,9 @@ class BaseController extends Controller
      * Remove the specified resource from storage.
      *
      * @param $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         try {
             $this->model->find($id)->delete();
@@ -145,9 +147,9 @@ class BaseController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function onUnauthorized()
+    public function onUnauthorized(): JsonResponse
     {
         return $this->response('You must login first.', 403);
     }
@@ -155,9 +157,9 @@ class BaseController extends Controller
     /**
      * @param $data
      * @param int $code
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function response($data, $code = 200)
+    public function response($data, int $code = 200): JsonResponse
     {
         $success = $code == 200;
         $data =
