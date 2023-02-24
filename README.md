@@ -1,10 +1,10 @@
 ## Использование
-- Клонировать репо
-- Копировать содержимое .env.example в .env
-- Выполнить:
-    + composer update
-    + php artisan passport:install
-    + docker-compose up
+- git clone git@github.com:n-robert/shopapi
+- docker-compose up --build --remove-orphans -d
+- docker exec -it php-fpm-shopapi bash
+- composer install
+- php artisan passport:install
+
 ## URLs
 Auth: Bearer Token
 - POST /register: {"name","email","password"}

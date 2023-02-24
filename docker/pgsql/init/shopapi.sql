@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.2
--- Dumped by pg_dump version 12.2
+-- Dumped from database version 12.14 (Debian 12.14-1.pgdg110+1)
+-- Dumped by pg_dump version 12.14 (Debian 12.14-1.pgdg110+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,14 +19,6 @@ SET row_security = off;
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
-
-DO $$
-BEGIN
-  CREATE ROLE test WITH LOGIN SUPERUSER PASSWORD 'test';
-  EXCEPTION WHEN DUPLICATE_OBJECT THEN
-  RAISE NOTICE 'not creating role test -- it already exists';
-END
-$$;
 
 --
 -- Name: carts; Type: TABLE; Schema: public; Owner: test
@@ -391,6 +383,7 @@ ALTER TABLE public.products_id_seq OWNER TO test;
 
 ALTER SEQUENCE public.products_id_seq OWNED BY public.products.id;
 
+
 --
 -- Name: sessions; Type: TABLE; Schema: public; Owner: test
 --
@@ -591,6 +584,8 @@ COPY public.oauth_auth_codes (id, user_id, client_id, scopes, revoked, expires_a
 COPY public.oauth_clients (id, user_id, name, secret, provider, redirect, personal_access_client, password_client, revoked, created_at, updated_at) FROM stdin;
 1	\N	Laravel Personal Access Client	vjO1ARuUi0iYJWgYacBU7wv55y2ink7gfIfO4Cvs	\N	http://localhost	t	f	f	2021-08-23 12:00:37	2021-08-23 12:00:37
 2	\N	Laravel Password Grant Client	zTg0QVe2J7cQbMQ63aiXkkQ41K87ejWdfRMw4OsY	users	http://localhost	f	t	f	2021-08-23 12:00:37	2021-08-23 12:00:37
+3	\N	Shop API Personal Access Client	bgqLEmsVZtd61Lq3JcfR2SCgH6LBXnODt4d1EY9V	\N	http://localhost	t	f	f	2023-02-24 12:15:58	2023-02-24 12:15:58
+4	\N	Shop API Password Grant Client	MmFPaFMc1Crx5FeLJbbZfXDgP0sgxwl5Sv2aNK3R	users	http://localhost	f	t	f	2023-02-24 12:15:58	2023-02-24 12:15:58
 \.
 
 
@@ -600,6 +595,7 @@ COPY public.oauth_clients (id, user_id, name, secret, provider, redirect, person
 
 COPY public.oauth_personal_access_clients (id, client_id, created_at, updated_at) FROM stdin;
 1	1	2021-08-23 12:00:37	2021-08-23 12:00:37
+2	3	2023-02-24 12:15:58	2023-02-24 12:15:58
 \.
 
 
@@ -648,6 +644,14 @@ COPY public.products (id, title, slug, cost, created_at, updated_at) FROM stdin;
 
 
 --
+-- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: test
+--
+
+COPY public.sessions (id, user_id, ip_address, user_agent, payload, last_activity) FROM stdin;
+\.
+
+
+--
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: test
 --
 
@@ -683,14 +687,14 @@ SELECT pg_catalog.setval('public.migrations_id_seq', 32, true);
 -- Name: oauth_clients_id_seq; Type: SEQUENCE SET; Schema: public; Owner: test
 --
 
-SELECT pg_catalog.setval('public.oauth_clients_id_seq', 2, true);
+SELECT pg_catalog.setval('public.oauth_clients_id_seq', 4, true);
 
 
 --
 -- Name: oauth_personal_access_clients_id_seq; Type: SEQUENCE SET; Schema: public; Owner: test
 --
 
-SELECT pg_catalog.setval('public.oauth_personal_access_clients_id_seq', 1, true);
+SELECT pg_catalog.setval('public.oauth_personal_access_clients_id_seq', 2, true);
 
 
 --
@@ -877,12 +881,6 @@ CREATE INDEX password_resets_email_index ON public.password_resets USING btree (
 
 
 --
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: testuser
---
-
-
---
 -- PostgreSQL database dump complete
 --
-
 

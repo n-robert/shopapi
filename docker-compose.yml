@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   php-fpm:
-    container_name: php-fpm
+    container_name: php-fpm-shopapi
     build:
       context: docker/php-fpm
     image: php-fpm
@@ -16,7 +16,7 @@ services:
     networks:
       - internal
   nginx:
-    container_name: nginx-laraveltest
+    container_name: nginx-shopapi
     build:
       context: docker/nginx
     image: nginx
@@ -24,13 +24,13 @@ services:
       - ./:/var/www
       - ./storage/app/public/:/var/www/public/storage/
     ports:
-      - "8003:80"
+      - "8004:80"
     depends_on:
       - php-fpm
     networks:
       - internal
   db:
-    container_name: pgsql-laraveltest
+    container_name: pgsql-shopapi
     build: ./docker/pgsql
     image: pgsql
     ports:
@@ -39,28 +39,11 @@ services:
       - ./docker/pgsql/init:/docker-entrypoint-initdb.d
       - ./docker/pgsql/pgdata:/var/lib/postgresql
     environment:
-      - POSTGRES_DB=${DB_DATABASE}
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=shopapi
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
     networks:
       - internal
-
-  #db:
-    #container_name: mysql-laraveltest
-    #build: ./docker/mysql
-    #image: mysql
-    #ports:
-      #- "3307:3306"
-    #volumes:
-      #- ./docker/mysql/init:/docker-entrypoint-initdb.d
-      #- ./docker/mysql/mydata:/var/lib/mysql
-    #environment:
-      #- MYSQL_DB=${DB_DATABASE}
-      #- MYSQL_USER=${DB_USERNAME}
-      #- MYSQL_PASSWORD=${DB_PASSWORD}
-      #- MYSQL_ALLOW_EMPTY_PASSWORD=true
-    #networks:
-      #- internal
 networks:
   internal:
     driver: bridge
