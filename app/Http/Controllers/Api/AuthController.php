@@ -14,7 +14,9 @@ class AuthController extends BaseController
         try {
             User::create(array_merge(
                 $request->only('name', 'email'),
-                ['password' => bcrypt($request->password)]
+                [
+                    'password' => bcrypt($request->password),
+                ]
             ));
             $message = 'You were successfully registered.';
         } catch (\Exception $exception) {
@@ -48,7 +50,7 @@ class AuthController extends BaseController
         return $this->response(
             [
                 'token' => $token->accessToken,
-                'expires_at' => Carbon::parse($token->token->expires_at)->toDateTimeString()
+                'expires_at' => Carbon::parse($token->token->expires_at)->toDateTimeString(),
             ]
         );
     }
