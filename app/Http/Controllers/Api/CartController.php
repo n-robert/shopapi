@@ -113,6 +113,8 @@ class CartController extends BaseController
      */
     public function calculateCartPrice(&$tmpCart)
     {
+        $tmpCart['total'] = $tmpCart['total'] ?? 0;
+
         foreach ($tmpCart['items'] as $item) {
             $itemPrice = Product::find($item['id'])->cost * $item['quantity'];
             $tmpCart['total'] +=
