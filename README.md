@@ -10,7 +10,7 @@
 - `php artisan passport:install`
 
 ### API запросы
-Импортировать _shopapi.postman_collection.json_ для тестирования в Postman.
+Импортировать _**shopapi.postman_collection.json**_ для тестирования в Postman.
 
 Auth: Bearer Token
 - POST /register: `{"name","email","password"}`
@@ -31,6 +31,6 @@ Auth: Bearer Token
 - GET /api/orders
 
 ### Загрузка товаров из нескольких источников (например база данных и CSV-файл)
-- Создать сервисы MysqlUploadService, PgsqlUploadService, CsvUploadService... implements 
-UploadServiceInterface.
-- Создать метод upload($uploadService) и помощью DI подключить нужный сервис.
+- Создать сервисы **MysqlUploadService, PgsqlUploadService, CsvUploadService... implements 
+UploadServiceInterface**.
+- Создать метод `upload($uploadService)` и помощью DI подключить нужный сервис.
