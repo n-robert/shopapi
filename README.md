@@ -9,7 +9,9 @@
 - composer install
 - php artisan passport:install
 
-## URLs
+## API запросы
+Импортировать shopapi.postman_collection.json для тестирования в Postman.
+
 Auth: Bearer Token
 - POST /register: {"name","email","password"}
 - POST /login: {"email","password"}

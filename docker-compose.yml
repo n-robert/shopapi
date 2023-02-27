@@ -9,12 +9,12 @@ services:
     volumes:
       - ./:/var/www
     environment:
-      XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1"
+      XDEBUG_CONFIG: "remote_host=localhost remote_enable=1"
       PHP_IDE_CONFIG: "serverName=Docker"
     depends_on:
       - db
-    networks:
-      - internal
+#    networks:
+#      - internal
   nginx:
     container_name: nginx-shopapi
     build:
@@ -27,14 +27,14 @@ services:
       - "8004:80"
     depends_on:
       - php-fpm
-    networks:
-      - internal
+#    networks:
+#      - internal
   db:
     container_name: pgsql-shopapi
     build: ./docker/pgsql
     image: pgsql
     ports:
-      - "5433:5432"
+      - "5438:5432"
     volumes:
       - ./docker/pgsql/init:/docker-entrypoint-initdb.d
       - ./docker/pgsql/pgdata:/var/lib/postgresql
@@ -42,12 +42,12 @@ services:
       - POSTGRES_DB=shopapi
       - POSTGRES_USER=test
       - POSTGRES_PASSWORD=test
-    networks:
-      - internal
-networks:
-  internal:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.222.0/28
+#    networks:
+#      - internal
+#networks:
+#  internal:
+#    driver: bridge
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: 192.168.222.0/28
