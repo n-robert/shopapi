@@ -1,4 +1,4 @@
-## Использование
+### Установка
 - git clone git@github.com:n-robert/shopapi
 - cd shopapi
 - chown -R www-data:www-data storage bootstrap/cache \
@@ -9,7 +9,7 @@
 - composer install
 - php artisan passport:install
 
-## API запросы
+### API запросы
 Импортировать shopapi.postman_collection.json для тестирования в Postman.
 
 Auth: Bearer Token
@@ -30,7 +30,7 @@ Auth: Bearer Token
 - DELETE /api/orders/{id}
 - GET /api/orders
 
-## Загрузка товаров из нескольких источников (например база данных и CSV-файл)
+### Загрузка товаров из нескольких источников (например база данных и CSV-файл)
 - Создать сервисы MysqlUploadService, PgsqlUploadService, CsvUploadService... implements 
 UploadServiceInterface.
 - Создать метод upload($uploadService) и помощью DI подключить нужный сервис.
