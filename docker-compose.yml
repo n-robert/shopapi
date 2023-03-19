@@ -34,7 +34,7 @@ services:
     build: ./docker/pgsql
     image: pgsql
     ports:
-      - "5439:5432"
+      - "5438:5432"
     volumes:
 #      - ./docker/pgsql/init:/docker-entrypoint-initdb.d
       - ./docker/pgsql/pgdata:/var/lib/postgresql
