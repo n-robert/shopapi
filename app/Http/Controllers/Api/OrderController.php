@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Models\Cart;
 use App\Models\Delivery;
 use App\Models\Payment;
-use App\Models\Status;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 

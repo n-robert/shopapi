@@ -33,8 +33,3 @@ Auth: Bearer Token
 - GET /api/products
 - GET /api/carts
 - GET /api/orders
-
-### Загрузка товаров из нескольких источников (например база данных и CSV-файл)
-- Создать сервисы `MysqlUploadService, PgsqlUploadService, CsvUploadService... implements 
-UploadServiceInterface`.
-- Создать метод `upload($uploadService)` и помощью DI подключить нужный сервис.
