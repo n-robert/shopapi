@@ -4,6 +4,7 @@
 - `chown -R www-data:www-data storage bootstrap/cache` \
 - `chgrp -R www-data storage bootstrap/cache` \
 - `chmod -R ug+rwx storage bootstrap/cache`
+- `cp .env.example .env`
 - `docker compose up --build --remove-orphans -d`
 - `docker exec -it php-fpm-shopapi bash`
 - `composer install`
