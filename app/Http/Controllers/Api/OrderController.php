@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Models\Cart;
 use App\Models\Delivery;
 use App\Models\Payment;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class OrderController extends ShopApiController
 {
@@ -29,33 +29,49 @@ class OrderController extends ShopApiController
 
     /**
      * Store new record.
+     * @param Request $request
      * @return JsonResponse
      */
-    public function store(): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $cartId = $this->request->get('cart_id');
-        $statusId = $this->request->get('status_id', 3);
-        $paymentId = $this->request->get('payment_id', 1);
-        $deliveryId = $this->request->get('delivery_id', 1);
-        $cart = Cart::query()->findOrFail($cartId);
+        try {
+            $cartId = $request->get('cart_id');
+            $cart = Cart::query()->findOrFail($cartId);
 
-        $data = [
-            'items'       => $cart->items,
-            'user_id'     => $cartId,
-            'status_id'   => $statusId,
-            'payment_id'  => $paymentId,
-            'delivery_id' => $deliveryId,
-            'total'       => $cart->total,
-        ];
-        static::calculateOrderTotal($data);
+            if (empty($cart->items)) {
+                return $this->response(payload: 'Cart is empty. No order is created.');
+            }
 
-        $result = parent::save(data: $data);
+            $statusId = $request->get('status_id', 3);
+            $paymentId = $request->get('payment_id', 1);
+            $deliveryId = $request->get('delivery_id', 1);
 
-        if ($result->getData()->success) {
-            Cart::query()->update([
-                'items' => [],
-                'total' => 0,
-            ]);
+            $data = [
+                'items'       => $cart->items,
+                'user_id'     => $cartId,
+                'status_id'   => $statusId,
+                'payment_id'  => $paymentId,
+                'delivery_id' => $deliveryId,
+                'total'       => $cart->total,
+            ];
+            static::calculateOrderTotal($data);
+
+            $result = parent::save(request: $request, data: $data);
+
+            if ($result->getData()->success) {
+                Cart::query()->update([
+                    'items' => [],
+                    'total' => 0,
+                ]);
+            }
+        } catch (\Exception $exception) {
+            $result = $this->response(
+                payload: [
+                    'message' => 'Checkout failed.',
+                    'errors'  => $exception->getMessage(),
+                ],
+                status: 500
+            );
         }
 
         return $result;
@@ -64,17 +80,19 @@ class OrderController extends ShopApiController
     /**
      * Update existing record.
      *
-     * @param Model $model
+     * @param Request $request
+     * @param string $id
      * @return JsonResponse
      */
-    public function update(Model $model): JsonResponse
+    public function update(Request $request, string $id): JsonResponse
     {
+        $model = $this->model->find((int)$id);
         $attributes = [
             ...$model->attributesToArray(),
-            ...$this->request->only($model->getFillable()),
+            ...$request->only($model->getFillable()),
         ];
         static::calculateOrderTotal($attributes);
 
-        return parent::save($model, $attributes);
+        return parent::save($request, $model, $attributes);
     }
 }

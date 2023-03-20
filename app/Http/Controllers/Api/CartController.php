@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CartController extends ShopApiController
 {
@@ -47,13 +49,15 @@ class CartController extends ShopApiController
     /**
      * Add new items/increase items quantity.
      *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function addToCart(): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $tmpCart = $this->loadCart();
+        $items = $request->get(key: 'items');
 
-        foreach ($this->request->get('items') as $item) {
+        foreach ($items as $item) {
             $itemId = $item['id'];
 
             if (!isset($tmpCart['items'][$itemId])) {
@@ -64,60 +68,70 @@ class CartController extends ShopApiController
             }
         }
 
-        return $this->saveCart($tmpCart);
+        return $this->save(request: $request, data: $tmpCart);
     }
 
     /**
      * Reduce items quantity.
      *
+     * @param Request $request
+     * @param string $id
      * @return JsonResponse
      */
-    public function removeFromCart(): JsonResponse
+    public function update(Request $request, string $id): JsonResponse
     {
         $tmpCart = $this->loadCart();
+        $items = $request->get(key: 'items');
 
-        foreach ($this->request->get(key: 'items') as $item) {
+        foreach ($items as $item) {
             $itemId = $item['id'];
 
             if (isset($tmpCart['items'][$itemId])) {
-                $tmpCart['items'][$itemId]['quantity'] -= $item['quantity'];
+                $tmpCart['items'][$itemId]['quantity'] = $item['quantity'];
             }
         }
 
-        return $this->saveCart($tmpCart);
+        return $this->save(request: $request, data: $tmpCart);
     }
 
     /**
      * Delete item from cart.
      *
+     * @param string $id
      * @return JsonResponse
      */
-    public function deleteFromCart(): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         $tmpCart = $this->loadCart();
+        $tmpCart['items'] = [];
+        $tmpCart['total'] = 0;
 
-        foreach ($this->request->get(key: 'itemIds') as $itemId) {
-            if (isset($tmpCart['items'][$itemId])) {
-                unset($tmpCart['items'][$itemId]);
-            }
+        try {
+            $this->cart->fill($tmpCart)->save();
+            $message = $this->baseName . ' #' . $id . ' deleted successfully.';
+            $code = 200;
+        } catch (\Exception $exception) {
+            $message = $exception->getMessage();
+            $code = 500;
         }
 
-        return $this->saveCart($tmpCart);
+        return $this->response(payload: $message, status: $code);
     }
 
     /**
      * Save cart to database.
      *
-     * @param $tmpCart
+     * @param Request $request
+     * @param Model|null $model
+     * @param null $data
      * @return JsonResponse
      */
-    public function saveCart($tmpCart): JsonResponse
+    public function save(Request $request, Model $model = null, $data = null): JsonResponse
     {
-        static::calculateCartPrice($tmpCart);
-        $tmpCart['id'] = $tmpCart['user_id'] = $this->request->user()->id;
+        static::calculateCartPrice($data);
+        $data['id'] = $data['user_id'] = $request->user()->id;
         $model = isset($this->cart->id) ? $this->cart : $this->model;
-        $this->save($model, $tmpCart);
 
-        return $this->response(payload: $tmpCart);
+        return parent::save($request, $model, $data);
     }
 }

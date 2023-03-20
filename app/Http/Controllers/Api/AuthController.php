@@ -6,6 +6,7 @@ use App\Http\Requests\Api\AuthFormRequest;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends ShopApiController
@@ -44,11 +45,12 @@ class AuthController extends ShopApiController
     }
 
     /**
+     * @param Request $request
      * @return JsonResponse
      */
-    public function login(): JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        $credentials = $this->request->only('email', 'password');
+        $credentials = $request->only('email', 'password');
 
         if (!Auth::attempt($credentials)) {
             return $this->response(
@@ -61,7 +63,7 @@ class AuthController extends ShopApiController
         }
 
         $token = Auth::user()->createToken(config('app.name'));
-        $token->token->expires_at = $this->request->remember_me ?
+        $token->token->expires_at = $request->remember_me ?
             Carbon::now()->addMonth() :
             Carbon::now()->addDay();
 
@@ -76,20 +78,22 @@ class AuthController extends ShopApiController
     }
 
     /**
+     * @param Request $request
      * @return JsonResponse
      */
-    public function logout(): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
-        $this->request->user()->token()->revoke();
+        $request->user()->token()->revoke();
 
         return $this->response('You are successfully logged out');
     }
 
     /**
+     * @param Request $request
      * @return JsonResponse
      */
-    public function user(): JsonResponse
+    public function user(Request $request): JsonResponse
     {
-        return $this->response($this->request->user());
+        return $this->response($request->user());
     }
 }

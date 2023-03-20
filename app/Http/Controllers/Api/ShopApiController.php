@@ -13,12 +13,14 @@ class ShopApiController extends Controller
     /**
      * ShopApiController constructor.
      *
-     * @param Request $request
      */
-    public function __construct(Request $request)
+    public function __construct()
     {
-        $this->request = $request;
-        $this->baseName = str_replace(search: 'Controller', replace: '', subject: class_basename(static::class));
+        $this->baseName = str_replace(
+            search: 'Controller',
+            replace: '',
+            subject: class_basename(static::class)
+        );
         $this->name = strtolower($this->baseName);
         $this->names = Str::plural(value: $this->name);
     }
@@ -62,12 +64,12 @@ class ShopApiController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $id
+     * @param string $id
      * @return JsonResponse
      */
-    public function show(int $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
-        return $this->response(payload: $this->model->findOrNew($id));
+        return $this->response(payload: $this->model->findOrNew((int)$id));
     }
 
     /**
@@ -77,10 +79,10 @@ class ShopApiController extends Controller
      * @param null $data
      * @return JsonResponse
      */
-    public function save(Model $model = null, $data = null): JsonResponse
+    public function save(Request $request, Model $model = null, $data = null): JsonResponse
     {
         $model = $model ?? $this->model;
-        $attributes = $data ?? $this->request->only($model->getFillable());
+        $attributes = $data ?? $request->only($model->getFillable());
         $message = '';
         $errors = '';
 
@@ -111,32 +113,35 @@ class ShopApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function store(): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        return $this->save();
+        return $this->save(request: $request);
     }
 
     /**
      * Update existing record.
      *
-     * @param Model $model
+     * @param Request $request
+     * @param string $id
      * @return JsonResponse
      */
-    public function update(Model $model): JsonResponse
+    public function update(Request $request, string $id): JsonResponse
     {
-        return $this->save(model: $model);
+        $model = $this->model->find((int)$id);
+
+        return $this->save(request: $request, model: $model);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param $id
+     * @param string $id
      * @return JsonResponse
      */
-    public function destroy($id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         try {
-            $this->model->find($id)->delete();
+            $this->model->find((int)$id)->delete();
             $message = $this->baseName . ' #' . $id . ' deleted successfully.';
             $code = 200;
         } catch (\Exception $exception) {

@@ -23,26 +23,15 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/user', 'AuthController@user');
         Route::post('/logout', 'AuthController@logout');
-        Route::post('/cart-items', 'CartController@addToCart');
-        Route::put('/cart-items', 'CartController@removeFromCart');
-        Route::delete('/cart-items', 'CartController@deleteFromCart');
 
         $models = ['product', 'status', 'cart', 'order', 'payment', 'delivery'];
-
-        foreach ($models as $model) {
-            $table = Str::plural($model);
-            $controller = ucfirst($model) . 'Controller';
-
-            if ($model != 'cart') {
-                Route::get('/' . $table, $controller . '@index');
-                Route::post('/' . $table, $controller . '@store');
-            }
-
-            Route::get('/' . $table . '/{id}', $controller . '@show');
-            Route::delete('/' . $table . '/{id}', $controller . '@destroy');
-
-            Route::model($model, 'App\\Models\\' . ucfirst($model));
-            Route::put('/' . $table . '/{' . $model . '}', $controller . '@update');
-        }
+        array_map(
+            function ($model) {
+                $table = Str::plural($model);
+                $controller = ucfirst($model) . 'Controller';
+                Route::apiResource(name: $table, controller: $controller);
+            },
+            $models
+        );
     });
 });
