@@ -22,13 +22,13 @@ Auth: Bearer Token
 - POST /login: `{"email":"test@shopapi.com","password":"test", "remember_me":true}`
 - POST /logout
 - POST /api/products: `{"title":"New product", "cost":1000, "quantity": 20}`
-- POST /api/cart-items: `{"items":[{"id":1,"quantity":2}]}`
+- POST /api/carts: `{"items":[{"id":1,"quantity":2}]}`
 - POST /api/orders: `{"cart_id":1}`
 - PUT /api/products/{id}: `{"title": "Product 1", "cost": "1100.00", "quantity": 15}`
-- PUT /api/cart-items: `{"items": [{"id": 1, "quantity": 3}]}`
-- PUT /api/orders: `{"payment_id": 2, "items": {"1": {"id": 1, "quantity": 4}, "2": {"id": 2, "quantity": 3}}}`
+- PUT /api/carts/{id}: `{"items": [{"id": 1, "quantity": 3}]}`
+- PUT /api/orders/{id}: `{"payment_id": 2, "items": {"1": {"id": 1, "quantity": 4}, "2": {"id": 2, "quantity": 3}}}`
 - DELETE /api/products/{id}
-- DELETE /api/cart-items: `{"itemIds": [1]}`
+- DELETE /api/carts/{id}
 - DELETE /api/orders/{id}
 - GET /api/user
 - GET /api/products
