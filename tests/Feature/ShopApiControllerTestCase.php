@@ -49,7 +49,7 @@ class ShopApiControllerTestCase extends TestCase
         $this->controller = $this->controller ?? new ShopApiController();
         $this->name = $this->controller->name;
         $this->names = $this->controller->names;
-        $this->apiUrl = 'api/' . $this->names  . '/';
+        $this->apiUrl = '/api/' . $this->names  . '/';
         $this->model = $this->controller->model;
         $this->withoutExceptionHandling();
     }
