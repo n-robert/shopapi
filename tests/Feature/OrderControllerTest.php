@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Controllers\Api\OrderController;
 
-class OrderControllerTest extends ShopApiControllerTest
+class OrderControllerTest extends ShopApiControllerTestCase
 {
     protected function setUp(): void
     {

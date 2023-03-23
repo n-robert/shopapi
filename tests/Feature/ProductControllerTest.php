@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Controllers\Api\ProductController;
 
-class ProductControllerTest extends ShopApiControllerTest
+class ProductControllerTest extends ShopApiControllerTestCase
 {
     /**
      * @var int
