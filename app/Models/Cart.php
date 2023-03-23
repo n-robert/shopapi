@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-class Cart extends Base
+class Cart extends ShopApi
 {
     /**
      * The attributes that are mass assignable.
@@ -10,7 +10,11 @@ class Cart extends Base
      * @var array
      */
     protected $fillable = [
-        'items', 'type', 'status', 'user_id', 'total',
+        'items',
+        'type',
+        'status_id',
+        'user_id',
+        'total',
     ];
 
     /**
@@ -20,5 +24,6 @@ class Cart extends Base
      */
     protected $casts = [
         'items' => 'array',
+        'total' => 'float',
     ];
 }

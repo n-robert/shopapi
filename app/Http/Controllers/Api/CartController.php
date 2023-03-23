@@ -18,15 +18,17 @@ class CartController extends ShopApiController
      */
     public static function calculateCartPrice(&$tmpCart): void
     {
-        $tmpCart['total'] = 0;
+        $total = 0;
 
-        array_walk($tmpCart['items'], function (&$item) use (&$tmpCart) {
+        array_walk($tmpCart['items'], function (&$item) use (&$total) {
             $itemPrice = Product::find($item['id'])->cost * $item['quantity'];
-            $tmpCart['total'] += Carbon::now()->timezone('Europe/Moscow')->isWeekend() ? $itemPrice * 0.8
+            $total += Carbon::now()->timezone('Europe/Moscow')->isWeekend() ? $itemPrice * 0.8
                 : ($item['quantity'] > 2 ? $itemPrice * 0.85
                     : ($item['quantity'] > 1 ? $itemPrice * 0.9
                         : $itemPrice));
         });
+
+        $tmpCart['total'] = round((float)$total, 2);
     }
 
     /**
@@ -129,8 +131,13 @@ class CartController extends ShopApiController
     public function save(Request $request, Model $model = null, $data = null): JsonResponse
     {
         static::calculateCartPrice($data);
-        $data['id'] = $data['user_id'] = $request->user()->id;
-        $model = isset($this->cart->id) ? $this->cart : $this->model;
+
+        if (isset($this->cart->id)) {
+            $model = $this->cart;
+        } else {
+            $model = $this->model;
+            $data['id'] = $data['user_id'] = $request->user()->id;
+        }
 
         return parent::save($request, $model, $data);
     }

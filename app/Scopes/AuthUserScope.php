@@ -18,9 +18,9 @@ class AuthUserScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        if (Auth::user()->is_admin) {
-            return;
-        }
+//        if (Auth::user()->is_admin) {
+//            return;
+//        }
 
         if ($model->name != 'product') {
             $builder->where('user_id', Auth::id());

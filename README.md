@@ -9,7 +9,6 @@
 - `docker exec -it php-fpm-shopapi bash`
 - `composer install`
 - `php artisan migrate`
-- `php artisan db:seed`
 - `php artisan passport:install`
 
 ### API запросы
@@ -21,12 +20,12 @@ Auth: Bearer Token
 - POST /register: `{"name":"test","email":"test@shopapi.com","password":"test"}`
 - POST /login: `{"email":"test@shopapi.com","password":"test", "remember_me":true}`
 - POST /logout
-- POST /api/products: `{"title":"New product", "cost":1000, "quantity": 20}`
-- POST /api/carts: `{"items":[{"id":1,"quantity":2}]}`
+- POST /api/products: `{"title": "Product 1", "cost": "1000.00", "quantity": 15}`
+- POST /api/carts: `{"items": [{"id": 1,"quantity": 2}]}`
 - POST /api/orders: `{"cart_id":1}`
-- PUT /api/products/{id}: `{"title": "Product 1", "cost": "1100.00", "quantity": 15}`
+- PUT /api/products/{id}: `{"title": "Product 1", "cost": "1100.00", "quantity": 25}`
 - PUT /api/carts/{id}: `{"items": [{"id": 1, "quantity": 3}]}`
-- PUT /api/orders/{id}: `{"payment_id": 2, "items": {"1": {"id": 1, "quantity": 4}, "2": {"id": 2, "quantity": 3}}}`
+- PUT /api/orders/{id}: `{"payment_id": 2, "items": {"1": {"id": 1, "quantity": 4}}}`
 - DELETE /api/products/{id}
 - DELETE /api/carts/{id}
 - DELETE /api/orders/{id}

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-class Product extends Base
+class Product extends ShopApi
 {
     /**
      * The attributes that are mass assignable.
@@ -10,13 +10,17 @@ class Product extends Base
      * @var array
      */
     protected $fillable = [
-        'title', 'slug', 'cost', 'quantity'
+        'title',
+        'slug',
+        'cost',
+        'quantity',
+        'description',
     ];
 
     /**
      * Save the model to the database.
      *
-     * @param  array  $options
+     * @param array $options
      * @return bool
      */
     public function save(array $options = [])

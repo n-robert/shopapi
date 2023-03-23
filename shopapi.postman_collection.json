@@ -183,11 +183,9 @@
 			"response": []
 		},
 		{
-			"name": "api/cart-items",
+			"name": "api/carts",
 			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"accept": true
-				}
+				"disabledSystemHeaders": {}
 			},
 			"request": {
 				"auth": {
@@ -201,16 +199,10 @@
 					]
 				},
 				"method": "POST",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
+				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"items\":[{\"id\":1,\"quantity\":2}]}",
+					"raw": "{\"items\":[{\"id\":2,\"quantity\":1}]}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -218,13 +210,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/api/cart-items",
+					"raw": "{{baseUrl}}/api/carts",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"cart-items"
+						"carts"
 					]
 				}
 			},
@@ -392,7 +384,7 @@
 			"response": []
 		},
 		{
-			"name": "api/cart-items",
+			"name": "api/carts/{id}",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {}
 			},
@@ -419,13 +411,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/api/cart-items",
+					"raw": "{{baseUrl}}/api/carts/1",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"cart-items"
+						"carts",
+						"1"
 					]
 				}
 			},
@@ -505,7 +498,7 @@
 			"response": []
 		},
 		{
-			"name": "api/cart-items",
+			"name": "api/carts/{id}",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {}
 			},
@@ -532,13 +525,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/api/cart-items",
+					"raw": "{{baseUrl}}/api/carts/1",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"cart-items"
+						"carts",
+						"1"
 					]
 				}
 			},
@@ -682,10 +676,7 @@
 			"response": []
 		},
 		{
-			"name": "api/orders",
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {}
-			},
+			"name": "api/carts",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -700,13 +691,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/api/orders",
+					"raw": "{{baseUrl}}/api/carts",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"orders"
+						"carts"
 					]
 				}
 			},
@@ -739,6 +730,37 @@
 						"api",
 						"orders",
 						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/orders",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/orders",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"orders"
 					]
 				}
 			},

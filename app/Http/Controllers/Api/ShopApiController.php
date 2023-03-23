@@ -10,6 +10,21 @@ use Illuminate\Support\Str;
 
 class ShopApiController extends Controller
 {
+
+    /**
+     * @var string
+     */
+    public $baseName;
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var string
+     */
+    public $names;
+
     /**
      * ShopApiController constructor.
      *
@@ -83,11 +98,13 @@ class ShopApiController extends Controller
     {
         $model = $model ?? $this->model;
         $attributes = $data ?? $request->only($model->getFillable());
-        $message = '';
         $errors = '';
 
         try {
-            $model->fill($attributes)->save();
+            if (!$model->fill($attributes)->save()) {
+                throw new \Exception();
+            }
+
             $id = $model->id ??
                   $model
                       ->query()

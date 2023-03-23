@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-class Order extends Base
+class Order extends ShopApi
 {
     /**
      * The attributes that are mass assignable.
