@@ -33,3 +33,12 @@ Auth: Bearer Token
 - GET /api/products
 - GET /api/carts
 - GET /api/orders
+
+### PHPUnit тесты
+- `docker exec -it php-fpm-shopapi bash`
+- `php artisan test` или `vendor/bin/phpunit`
+
+Тестовые классы:
+- ProductControllerTest
+- CartControllerTest
+- OrderControllerTest
