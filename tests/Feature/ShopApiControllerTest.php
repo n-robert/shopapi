@@ -173,7 +173,7 @@ class ShopApiControllerTest extends TestCase
      *
      * @return void
      */
-    protected function afterRefreshingDatabase()
+    protected function afterRefreshingDatabase(): void
     {
         $this->artisan('passport:install');
         $this->artisan('db:seed', ['--class' => 'StatusSeeder']);
