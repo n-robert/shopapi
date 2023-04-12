@@ -16,6 +16,7 @@ services:
             - test-db
         networks:
             - network-1
+            - network-2
     nginx:
         container_name: nginx-shopapi
         build:
