@@ -47,7 +47,7 @@ services:
         networks:
             - network-1
     test-db:
-        container_name: pgsql-shopapi
+        container_name: pgsql-shopapitest
         build: ./docker/pgsql
         image: pgsql
         ports:
